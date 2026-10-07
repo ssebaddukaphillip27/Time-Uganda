@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Current Local Time in Kampala, Uganda</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --accent: #f59e0b; /* Yellow accent inspired by the Uganda flag */
+            --clock-face: #334155;
+            --hand-hour: #f8fafc;
+            --hand-min: #cbd5e1;
+            --hand-sec: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 420px;
+            width: 100%;
+            border: 1px solid #334155;
+        }
+
+        .location-tag {
+            color: var(--accent);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+        }
+
+        /* Analog Clock Styling */
+        .clock-container {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 24px auto;
+        }
+
+        .analog-clock {
+            width: 100%;
+            height: 100%;
+        }
+
+        .clock-face { fill: var(--clock-face); }
+        .clock-marker { stroke: var(--text-sub); stroke-linecap: round; }
+        .hand-hour { stroke: var(--hand-hour); stroke-width: 4; stroke-linecap: round; }
+        .hand-minute { stroke: var(--hand-min); stroke-width: 3; stroke-linecap: round; }
+        .hand-second { stroke: var(--hand-sec); stroke-width: 1.5; stroke-linecap: round; }
+        .center-pin { fill: var(--hand-sec); }
+
+        /* Digital Display */
+        .digital-time {
+            font-size: 2.2rem;
+            font-weight: 700;
+            font-family: monospace;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .date-string {
+            color: var(--text-sub);
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .info-pill {
+            display: inline-block;
+            background-color: #334155;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            margin-bottom: 24px;
+        }
+
+        /* Footer Styling */
+        .card-footer {
+            border-top: 1px solid #334155;
+            padding-top: 16px;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            line-height: 1.5;
+        }
+
+        .card-footer strong {
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="location-tag">Uganda • East Africa</div>
+        <h1>Kampala Time</h1>
+
+        <!-- Analog Clock -->
+        <div class="clock-container">
+            <svg class="analog-clock" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="48" class="clock-face"/>
+                
+                <!-- Hour Markers -->
+                <line x1="50" y1="6" x2="50" y2="10" class="clock-marker" stroke-width="2"/>
+                <line x1="94" y1="50" x2="90" y2="50" class="clock-marker" stroke-width="2"/>
+                <line x1="50" y1="94" x2="50" y2="90" class="clock-marker" stroke-width="2"/>
+                <line x1="6" y1="50" x2="10" y2="50" class="clock-marker" stroke-width="2"/>
+
+                <!-- Clock Hands -->
+                <line id="hourHand" x1="50" y1="50" x2="50" y2="28" class="hand-hour"/>
+                <line id="minuteHand" x1="50" y1="50" x2="50" y2="18" class="hand-minute"/>
+                <line id="secondHand" x1="50" y1="50" x2="50" y2="12" class="hand-second"/>
+                <circle cx="50" cy="50" r="2.5" class="center-pin"/>
+            </svg>
+        </div>
+
+        <!-- Digital Clock & Date -->
+        <div id="digitalTime" class="digital-time">00:00:00 EAT</div>
+        <div id="dateDisplay" class="date-string">Loading...</div>
+        <div class="info-pill">Time Zone: EAT (UTC +3)</div>
+
+        <!-- Copyright & Developer Footer -->
+        <div class="card-footer">
+            <p>&copy; 2026</p>
+            <p>Developed by <strong>Ssebadduka Phillip</strong> of Uganda</p>
+        </div>
+    </div>
+
+    <script>
+        function updateClock() {
+            // Get current time locked specifically to Uganda's timezone (Africa/Kampala)
+            const now = new Date();
+            const ugandaTimeString = now.toLocaleString("en-US", { timeZone: "Africa/Kampala" });
+            const ugandaDate = new Date(ugandaTimeString);
+
+            const hours = ugandaDate.getHours();
+            const minutes = ugandaDate.getMinutes();
+            const seconds = ugandaDate.getSeconds();
+
+            // Calculate rotational degrees for hands
+            const secDeg = (seconds / 60) * 360;
+            const minDeg = ((minutes + seconds / 60) / 60) * 360;
+            const hourDeg = (((hours % 12) + minutes / 60) / 12) * 360;
+
+            // Apply SVG Rotations around center point (50, 50)
+            document.getElementById('secondHand').setAttribute('transform', `rotate(${secDeg}, 50, 50)`);
+            document.getElementById('minuteHand').setAttribute('transform', `rotate(${minDeg}, 50, 50)`);
+            document.getElementById('hourHand').setAttribute('transform', `rotate(${hourDeg}, 50, 50)`);
+
+            // Format Digital Display (12-hour format)
+            const formattedHours = String(hours % 12 || 12).padStart(2, '0');
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            const formattedSeconds = String(seconds).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+
+            document.getElementById('digitalTime').textContent = 
+                `${formattedHours}:${formattedMinutes}:${formattedSeconds} ${ampm}`;
+
+            // Format Date Display
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Africa/Kampala' };
+            document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-UG', options);
+        }
+
+        // Run clock update immediately and refresh every second
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>
