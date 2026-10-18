@@ -1,1 +1,48 @@
+name: Build Time Uganda APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Cordova
+        run: npm install -g cordova
+
+      - name: Create Cordova Project & Bundle HTML App
+        run: |
+          cordova create myapp com.app.timeuganda "Time Uganda"
+          # Copy your index.html and web assets into Cordova's www directory
+          cp -r index.html css js assets img myapp/www/ 2>/dev/null || cp index.html myapp/www/
+          cd myapp
+          cordova platform add android
+
+      - name: Build Debug APK
+        run: |
+          cd myapp
+          cordova build android --debug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Time-Uganda-APK
+          path: myapp/platforms/android/app/build/outputs/apk/debug/app-debug.apk
 
