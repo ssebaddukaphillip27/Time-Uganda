@@ -27,17 +27,15 @@ jobs:
       - name: Install Cordova
         run: npm install -g cordova
 
-      - name: Create Cordova Project & Clean Default Files
+      - name: Create Cordova Project & Bundle Web Files
         run: |
           cordova create myapp com.app.timeuganda "Time Uganda"
           
-          # Delete default Apache template files from www folder
+          # Clean www folder and copy your code
           rm -rf myapp/www/*
-          
-          # Copy your actual index.html and web assets into Cordova's www directory
           cp -r index.html css js assets img myapp/www/ 2>/dev/null || cp index.html myapp/www/
           
-          # Automatically add custom icon if icon.png exists
+          # Add icon if available
           if [ -f icon.png ]; then
             cp icon.png myapp/icon.png
             sed -i '/<\/widget>/i \    <icon src="icon.png" />' myapp/config.xml
@@ -45,6 +43,13 @@ jobs:
 
           cd myapp
           cordova platform add android
+
+      - name: Force Overwrite Default Apache Web Files
+        run: |
+          cd myapp
+          # Overwrite platform www files with your actual index files
+          rm -rf platforms/android/app/src/main/assets/www/*
+          cp -r www/* platforms/android/app/src/main/assets/www/
 
       - name: Build Debug APK
         run: |
